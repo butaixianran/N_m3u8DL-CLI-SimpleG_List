@@ -109,6 +109,8 @@ namespace N_m3u8DL_CLI_SimpleG
         //下载进程
         private Process m3u8dlProcess;
         private TaskCompletionSource<bool> m3u8dlEventHandled;
+        //下载时，读取后台下载进程的log到UI用
+        StreamReader logBlockReader;
 
         public MainWindow()
         {
@@ -1261,20 +1263,29 @@ namespace N_m3u8DL_CLI_SimpleG
                     m3u8dlProcess.Exited += new EventHandler(DownloadProcess_Exited);
                     m3u8dlProcess.Start(); //启动
 
-                    //获取输出
-                    StreamReader reader = m3u8dlProcess.StandardOutput;
-                    // 每次读取一行
-                    string line = "";
-                    while (!reader.EndOfStream)
-                    {
-                        line = await reader.ReadLineAsync();
-                        WriteLogBlockLine(line);
-                    }
-
                 }
                 catch (Exception e)
                 {
                     MessageBox.Show($"调用下载进程出错:{e.Message}");
+                    return;
+                }
+
+                // 等待后台进程Log
+                try
+                {
+                    //获取输出
+                    logBlockReader = m3u8dlProcess.StandardOutput;
+                    // 每次读取一行
+                    string line = "";
+                    while (logBlockReader != null && !logBlockReader.EndOfStream)
+                    {
+                        line = await logBlockReader.ReadLineAsync();
+                        WriteLogBlockLine(line);
+                    }
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show($"读取后台下载进程Log出错:{e.Message}");
                     return;
                 }
 
@@ -1307,7 +1318,7 @@ namespace N_m3u8DL_CLI_SimpleG
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"设置进程完成出错:{ex.Message}");
+                MessageBox.Show($"设置下载进程为完成时出错:{ex.Message}");
                 return;
             }
 
@@ -1350,137 +1361,66 @@ namespace N_m3u8DL_CLI_SimpleG
         /// <param name="e"></param>
         private async void TaskStartAsync_Click(object sender, RoutedEventArgs e)
         {
-            try 
-            {
-                //定义要下载的任务
-                M3u8TaskItem item = GetNextTaskToDownload();
+            //重置任务列表状态
+            this.tasks_status = "";
 
-                //在下载期间，用户可能继续添加任务到列表，所以列表长度是动态变化的
-                //因此，不能简单用foreach遍历列表，会报错：集合已修改 可能无法执行枚举操作
-                //解决办法是，单独遍历任务列表，获取要下载的任务。
-                //再把下载放在while循环中，然后每完成一个任务，都重新检查列表，判断是否需要继续
-                while (item != null)
-                {
-                    //检查任务列表状态
-                    if (this.tasks_status == "stopped")
-                    {
-                        //重置状态并退出运行
-                        this.tasks_status = "";
-                        break;
-                    }
+            //定义要下载的任务
+            M3u8TaskItem item = GetNextTaskToDownload();
 
-                    //清理LogBlock
-                    ClearLogBlock();
-
-                    //修改任务状态
-                    item.Status = "Downloading";
-                    lbTaskList.Items.Refresh();
-
-                    //启动异步下载
-                    try
-                    {
-                        await StartDownloadProcessAsync(TextBox_EXE.Text, item.Parameter);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"运行异步下载出错:{ex.Message}");
-                        return;
-                    }
-
-
-                    try
-                    {
-                        //再次修改任务状态
-                        item.Status = "Done";
-                        lbTaskList.Items.Refresh();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"修改任务状态出错:{ex.Message}");
-                        return;
-                    }
-
-                    //获取下一个任务
-                    item = GetNextTaskToDownload();
-                }
-
-
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"下载过程出错:{ex.Message}");
-                return;
-            }
-
-        }
-
-        /// <summary>
-        /// 启动任务列表
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void TaskStart_Click(object sender, RoutedEventArgs e) 
-        {
-            //遍历任务列表，查找下一个需要下载的任务
-            foreach(M3u8TaskItem item in this.m3u8_tasks) 
+            //在下载期间，用户可能继续添加任务到列表，所以列表长度是动态变化的
+            //因此，不能简单用foreach遍历列表，会报错：集合已修改 可能无法执行枚举操作
+            //解决办法是，单独遍历任务列表，获取要下载的任务。
+            //再把下载放在while循环中，然后每完成一个任务，都重新检查列表，判断是否需要继续
+            while (item != null)
             {
                 //检查任务列表状态
-                if (this.tasks_status == "stopped") 
+                if (this.tasks_status == "stopped")
                 {
                     //重置状态并退出运行
                     this.tasks_status = "";
                     break;
                 }
 
-                //检查当前遍历到的任务状态
-                if (string.IsNullOrEmpty(item.Status)) 
+                //清理LogBlock
+                ClearLogBlock();
+
+                //修改任务状态
+                item.Status = "Downloading";
+                lbTaskList.Items.Refresh();
+
+                //启动异步下载
+                try
                 {
-                    //检查参数
-                    if (string.IsNullOrEmpty(item.Parameter))
+                    await StartDownloadProcessAsync(TextBox_EXE.Text, item.Parameter);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"运行异步下载出错:{ex.Message}");
+                    return;
+                }
+
+
+                try
+                {
+                    //再次修改任务状态
+                    if (item.Status == "Downloading")
                     {
-                        item.Status = "Empty Parameter";
-                        continue;
-                    }
-                    else
-                    {
-                        //修改任务状态
-                        item.Status = "Downloading";
-                        lbTaskList.Items.Refresh();
-
-                        //启动下载工具
-                        using (Process p = Process.Start(TextBox_EXE.Text, item.Parameter))
-                        {
-                            p.WaitForExit();//等待程序执行完退出进程
-                            p.Close();
-                        }
-
-                        //using (Process p = new Process())
-                        //{
-                        //    p.StartInfo.FileName = TextBox_EXE.Text;
-                        //    p.StartInfo.UseShellExecute = true;        //是否使用操作系统shell启动
-                        //    p.StartInfo.RedirectStandardInput = true;   //接受来自调用程序的输入信息
-                        //    //p.StartInfo.RedirectStandardOutput = true;  //由调用程序获取输出信息
-                        //    //p.StartInfo.RedirectStandardError = true;   //重定向标准错误输出
-                        //    p.StartInfo.CreateNoWindow = false;          //不显示程序窗口
-                        //    p.StartInfo.StandardErrorEncoding = Encoding.UTF8;
-                        //    p.Start();//启动程序
-                        //    p.StandardInput.AutoFlush = true;
-
-                        //    p.WaitForExit();//等待程序执行完退出进程
-                        //    p.Close();
-                        //}
-
-                        //再次修改任务状态
                         item.Status = "Done";
                         lbTaskList.Items.Refresh();
-
                     }
-
                 }
-            }
-        }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"修改任务状态出错:{ex.Message}");
+                    return;
+                }
 
+                //获取下一个任务
+                item = GetNextTaskToDownload();
+            }
+
+
+        }
 
 
 
@@ -1491,6 +1431,9 @@ namespace N_m3u8DL_CLI_SimpleG
         /// <param name="e"></param>
         private void TaskStop_Click(object sender, RoutedEventArgs e)
         {
+            //改变任务列表状态
+            this.tasks_status = "stopped";
+
             //遍历任务列表，查找当前任务
             foreach (M3u8TaskItem item in this.m3u8_tasks)
             {
@@ -1504,8 +1447,40 @@ namespace N_m3u8DL_CLI_SimpleG
 
             lbTaskList.Items.Refresh();
 
-            //改变任务列表状态
-            this.tasks_status = "stopped";
+            //终止logBlockReader写入
+            if (logBlockReader != null) 
+            {
+                try
+                {
+                    logBlockReader.Close();
+                    logBlockReader = null;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"中止下载Log读取器时出错：{ex.Message}");
+                }
+            }
+
+            //终止正在进行的下载进程
+            if (m3u8dlProcess != null) 
+            {
+                try
+                {
+                    m3u8dlProcess.Kill();
+                    m3u8dlProcess.WaitForExit();
+                    m3u8dlProcess.Close();
+                    m3u8dlProcess = null;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"中止下载进程出错：{ex.Message}");
+                }
+            }
+
+
+
+
+
         }
 
 
