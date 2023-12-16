@@ -6,72 +6,102 @@
 * 新增任务列表功能
 * 列表区域下方会显示下载进度的Log。
 * 原版的"Go"按钮，变为"Add"，改为把任务添加到列表，而不是直接下载。
-* GUI端支持 m3u8dl 协议。可以配合chrome浏览器扩展 [猫抓](https://chromewebstore.google.com/detail/%E7%8C%AB%E6%8A%93/jfedfbgedapdagkghmgibemcoggfppbb?hl=zh-CN) 使用。在[猫抓](https://chromewebstore.google.com/detail/%E7%8C%AB%E6%8A%93/jfedfbgedapdagkghmgibemcoggfppbb?hl=zh-CN)中，点击下载，会自动打开本GUI工具，把下载任务添加到列表中。
+* GUI端支持 m3u8dl 协议。可以配合chrome浏览器扩展 [猫抓](https://chromewebstore.google.com/detail/%E7%8C%AB%E6%8A%93/jfedfbgedapdagkghmgibemcoggfppbb?hl=zh-CN) 使用。在[猫抓](https://chromewebstore.google.com/detail/%E7%8C%AB%E6%8A%93/jfedfbgedapdagkghmgibemcoggfppbb?hl=zh-CN)中，点击下载，可以自动打开本GUI工具，把下载任务添加到列表中。
 * 参数中，增加"--pageUrl"参数。这个参数是指下载的网页。实际下载时，不会用到，但是会保存在任务中。这样，选择一个任务，点击"打开网页"按钮，就能方便的打开该视频的网页。当下载失败时，便于重新获取m3u8地址。
 * 点击任务列表中的一个任务，任务的内容，会填充到左边表单，可以修改之后，重新添加。
 * 任务列表中的任务，右侧会显示简单的下载状态。   
+* 同时只下载1个任务。
 
 ![image](img/screenshot.jpg)  
 
 # 使用方法
-## 基本用法
-* 下载 [N_m3u8DL-CLI](https://github.com/nilaoda/N_m3u8DL-CLI) 命令行工具，建议下载带ffmpeg的版本。
-* 下载本工具，解压后，把N_m3u8DL-CLI-SimpleG_List.exe，放在N_m3u8DL-CLI同目录下。
-* 打开本工具，选择你的N_m3u8DL-CLI下载工具，并选择下载目录。
-* 以后要下载m3u8的时候，在左边表单界面上填写信息。参数请看[原版文档](https://nilaoda.github.io/N_m3u8DL-CLI/SimpleGUI.html)。
-* 点击"Add"按钮，添加任务到队列。添加了足够的任务后，点击下载开始下载。  
+## 下载N_m3u8DL-CLI
+(这一步，会用N_m3u8DL-CLI直接跳过)  
+在[N_m3u8DL-CLI项目页面](https://github.com/nilaoda/N_m3u8DL-CLI)项目页面，点击右侧Release页面，去下载最新版本。  
 
-下载的同时，可以继续添加任务。  
+要下载的版本是：`N_m3u8DL-CLI_v版本号_with_ffmpeg_and_SimpleG.zip`。  
 
-## 最佳用法
-配合猫抓使用效果最好。方法：  
+**下载后解压到自定义的位置，以后位置不要再换。**
 
-使用chrome类浏览器，安装扩展：[猫抓](https://chromewebstore.google.com/detail/%E7%8C%AB%E6%8A%93/jfedfbgedapdagkghmgibemcoggfppbb?hl=zh-CN)   
+## 对于已经有N_m3u8DL-CLI的用户
+如果注册过它的m3u8DL协议，要先注销这个协议。因为要改为在本增强版GUI工具那边注册这个协议。
 
-在猫抓的设置中，开启"**调用N_m3u8DL-CLI的m3u8dl://协议下载m3u8 和 mpd**"。填写好协议要用的下载参数。
+注销方法：命令行模式，前往N_m3u8DL-CLI目录。执行：
+> N_m3u8DL-CLI可执行文件名 --unregisterUrlProtocol  
+
+## 下载本增强版GUI
+前往项目池右侧Release页面，下载最新版。  
+解压.exe文件到N_m3u8DL-CLI同目录。
+
+## 配置本增强版GUI
+**先用管理员模式打开本增强版GUI。** 点击左下角的"注册m3u8DL协议"。注册成功后，关闭。 **以后使用无须管理员模式。** 只有要注销协议，才用管理员模式打开。  
+
+用普通模式打开本增强版GUI工具，在左侧表单：  
+* 填写N_m3u8DL-CLI可执行文件名
+* 选择要下载到的目录
+* 勾选"合并后删除分片"  
+
+配置完成。
+
+
+## 手动添加任务到列表（不推荐）
+有了m3u8地址，可以手动填写左侧的表单，然后点击最下面"Add"按钮，把任务添加到右侧列表。  
+
+添加了足够的任务，下载即可。   
+
+支持一边下载，一边添加新任务。  
+
+## 配合浏览器扩展"猫抓"一键新建任务到列表（推荐）
+猫抓 是个视频嗅探 浏览器扩展。可以嗅探m3u8，而且支持刚才注册的那个N_m3u8DL-CLI自定义协议。
+
+* 安装猫抓浏览器扩展
+[https://chromewebstore.google.com/detail/%E7%8C%AB%E6%8A%93/jfedfbgedapdagkghmgibemcoggfppbb?hl=zh-CN](https://chromewebstore.google.com/detail/%E7%8C%AB%E6%8A%93/jfedfbgedapdagkghmgibemcoggfppbb?hl=zh-CN)  
+* 在猫抓的设置中，开启`调用N_m3u8DL-CLI的m3u8dl://协议下载m3u8 和 mpd`。填写好协议要用的下载参数。
 
 下面的参数供参考：
 ```
 "${url}" --saveName "${title}" --workDir "你的下载目录" --enableDelAfterDone --headers "Referer:${initiator}" --pageUrl "${webUrl}" --proxyAddress "socks5://127.0.0.1:你的代理端口"
 ```
 
-(
-如果用N_m3u8DL-CLI命令行工具注册过m3u8DL协议。请先用N_m3u8DL-CLI命令行工具注销协议。命令行命令：  
-> 从命令行进入N_m3u8DL-CLI目录，运行：  
-> N_m3u8DL-CLI可执行文件 --unregisterUrlProtocol  
-
-)
-
-用管理员方式，打开本GUI工具，点击左下角的"注册m3u8DL协议"。注册协议后，程序不要再移动位置。
-
-要取消注册协议的话，再次用管理员方式运行本程序，点击左下角的"注销m3u8DL协议"即可。
-
-关闭GUI工具，平时运行不需要管理员模式。
-用普通模式重新打开本GUI工具，填入N_m3u8DL-CLI的可执行程序文件名。选择下载目录，就是工作目录。
-
 好了，配置完毕。
 
-以后要下载m3u8的时候，在页面上，点击浏览器扩展 猫抓 的图标。在m3u8地址旁边，会有下载箭头，点击，就会打开本GUI工具，自动把下载信息，添加到列表。  
+## 在视频网页上使用
+以后在有m3u8的网页上，点击猫抓扩展图标，点击m3u8旁边的下载按钮。就会触发之前注册的协议，自动打开本增强版GUI工具，把这个地址，自动添加到任务列表中。  
 
 添加够了之后，点击下载即可。  
 
-# 已知问题
-## 停止的任务，不会再次开始
-停止的任务，状态会被标记为"Stopped"。凡是状态不为空的任务，都会直接跳过。所以，再次下载前要重置状态。
 
-具体操作是：选择状态为Stopped的任务，点击按钮"重置"。
+# 下载规则和已知问题
+## 同时进行任务数
+同时只下载一个任务，完成一个再下一个。
 
-## 列表不能保存
-m3u8地址经常一两个小时就会失效，所以就懒得做保存列表功能了。凑合吧。
+## 列表保存
+任务列表不保存，关闭GUI既清空。  
+m3u8地址经常一两个小时就会失效，所以就懒得做保存列表功能了，凑合吧。
+
+## 任务状态
+下载列表右侧有个任务状态显示。默认为空，其他几个状态是："Downloading, Stopped, Done"等。
+
+## 跳过的任务
+凡是状态不为空的任务，都会直接跳过。所以，停止的任务，再次下载前要重置状态：  
+
+选择状态不为空的任务，点击按钮"重置"。
+
+## 同名任务
+添加新任务时，如果存在同名的任务 ：
+* 如果存在的任务状态是空，就会去更新这个任务的地址。
+* 如果存在的任务状态不是空，就会新增一个同名的任务。
+
+## 选择任务
+任务列表中，点击选择一个任务，任务内容，会被填充到左侧的表单。可以修改后再次添加。
+
+## 新参数：页面地址
+猫抓里，对应的命令参数是`pageUrl`。这个参数，下载时并不使用，但是会保存在任务中。
+
+这样，点击一个任务，再点击按钮`打开网页`就会在浏览器打开这个视频地址。方便获取新的m3u8。
 
 ## 特殊情况卡界面
-下载时，程序会等待后台的N_m3u8DL-CLI命令行工具提供Log信息。如果 N_m3u8DL-CLI命令行工具 长时间不提供，本程序界面就会卡住。
-
-N_m3u8DL-CLI命令行工具不提供Log信息只有2种情况：
-* 网络太慢或不通畅，没有新的信息发出来
-* 下载完毕，正在合并，期间没有Log信息
-
-会卡住UI，是因为原版程序相当随意，使用的是古老的架构，并把代码全部塞在UI的代码页中。本程序只是改动，不打算颠覆，所以不动大手术的话，只能做到此地步，凑合吧。
+下载期间，右下方会显示下载过程的Log信息。当速度太慢 或 文件合并的时候，会没有新的Log，而UI要一直等待Log，界面就会短暂卡住。这是人家的简易项目架构，这里只是改动，所以就凑合吧。  
 
 
 # 原版文档
