@@ -1281,6 +1281,14 @@ namespace N_m3u8DL_CLI_SimpleG
                     {
                         line = await logBlockReader.ReadLineAsync();
                         WriteLogBlockLine(line);
+
+                        //检查内容是不是地址无效
+                        if (line.Contains("地址无效")) 
+                        {
+                            //要终止写入，并停止这个任务的下载
+                            StopTask("Failed");
+                            break;
+                        }
                     }
                 }
                 catch (Exception e)
@@ -1374,7 +1382,7 @@ namespace N_m3u8DL_CLI_SimpleG
             while (item != null)
             {
                 //检查任务列表状态
-                if (this.tasks_status == "stopped")
+                if (this.tasks_status == "Stopped")
                 {
                     //重置状态并退出运行
                     this.tasks_status = "";
@@ -1400,19 +1408,11 @@ namespace N_m3u8DL_CLI_SimpleG
                 }
 
 
-                try
+                //再次修改任务状态
+                if (item.Status == "Downloading")
                 {
-                    //再次修改任务状态
-                    if (item.Status == "Downloading")
-                    {
-                        item.Status = "Done";
-                        lbTaskList.Items.Refresh();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"修改任务状态出错:{ex.Message}");
-                    return;
+                    item.Status = "Done";
+                    lbTaskList.Items.Refresh();
                 }
 
                 //获取下一个任务
@@ -1423,16 +1423,10 @@ namespace N_m3u8DL_CLI_SimpleG
         }
 
 
-
-        /// <summary>
-        /// 停止任务列表。因为命令是发送给cmd调用其他下载工具的，所以并不能真的停止。这里只是简单的修改任务状态。
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void TaskStop_Click(object sender, RoutedEventArgs e)
+        private void StopTask(string new_status)
         {
             //改变任务列表状态
-            this.tasks_status = "stopped";
+            this.tasks_status = "Stopped";
 
             //遍历任务列表，查找当前任务
             foreach (M3u8TaskItem item in this.m3u8_tasks)
@@ -1441,14 +1435,12 @@ namespace N_m3u8DL_CLI_SimpleG
                 if (item.Status == "Downloading")
                 {
                     //修改任务状态
-                    item.Status = "Stopped";
+                    item.Status = new_status;
                 }
             }
 
-            lbTaskList.Items.Refresh();
-
             //终止logBlockReader写入
-            if (logBlockReader != null) 
+            if (logBlockReader != null)
             {
                 try
                 {
@@ -1462,7 +1454,7 @@ namespace N_m3u8DL_CLI_SimpleG
             }
 
             //终止正在进行的下载进程
-            if (m3u8dlProcess != null) 
+            if (m3u8dlProcess != null)
             {
                 try
                 {
@@ -1477,10 +1469,36 @@ namespace N_m3u8DL_CLI_SimpleG
                 }
             }
 
+            //刷新任务列表
+            try
+            {
+                lbTaskList.Items.Refresh();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine($"遇到错误：{e.Message}");
+                Debug.WriteLine("改为用this.Dispatcher.BeginInvoke调用控件");
+                //线程中，不能调用UI控件，只能这样间接调用
+                //不然会报错：调用线程无法访问此对象 因为另一个线程拥有该对象
+                //参考：https://www.yuantk.com/weblog/dee39674-c663-4e31-bf81-523518165a78.html
+                //在创建控件的基础句柄所在线程上异步执行指定委托。
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    lbTaskList.Items.Refresh();
+                }));
+            }
+
+        }
 
 
-
-
+        /// <summary>
+        /// 停止任务列表。因为命令是发送给cmd调用其他下载工具的，所以并不能真的停止。这里只是简单的修改任务状态。
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TaskStop_Click(object sender, RoutedEventArgs e)
+        {
+            StopTask("Stopped");
         }
 
 
