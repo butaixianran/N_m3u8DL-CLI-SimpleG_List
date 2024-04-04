@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:N_m3u8DL_CLI_SimpleG"
         xmlns:props="clr-namespace:N_m3u8DL_CLI_SimpleG.Properties"
         mc:Ignorable="d"
-        Title="N_m3u8DL-CLI-SimpleG v20220525" Height="820" Width="1280" MinHeight="820" MinWidth="1280" WindowStartupLocation="CenterScreen" Closing="Window_Closing" Loaded="Window_Loaded" Background="#FF252526">
+        Title="N_m3u8DL-CLI-SimpleG v20220525" WindowStartupLocation="CenterScreen" Closing="Window_Closing" Loaded="Window_Loaded" Background="#FF252526">
 
     <Grid Margin="5">
         <Grid.ColumnDefinitions>
