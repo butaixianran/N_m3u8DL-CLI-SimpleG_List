@@ -117,12 +117,21 @@ namespace N_m3u8DL_CLI_SimpleG
             InitializeComponent();
             TextBox_URL.Focus();
 
-            this.m3u8_tasks = new List<M3u8TaskItem>();
+            //当通过协议启动时，目录会指向 windows/system32
+            //设置当前目录为exe所在目录，防止因快捷方式或通过协议启动时，当前目录不是exe目录，导致找不到目录下的其他文件
+            Environment.CurrentDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+
+            //this.m3u8_tasks = new List<M3u8TaskItem>();
+            //从文件读取m3u8_tasks
+            Helper.m3u8_tasks = Helper.listFileIO.Load();
+
             this.tasks_status = "";
-            lbTaskList.ItemsSource = this.m3u8_tasks;
+            lbTaskList.ItemsSource = Helper.m3u8_tasks;
+            //lbTaskList.Items.Refresh();
 
+            //通过协议启动时，协议的内容，会作为启动参数传递进来
+            //但是，如果程序已经运行，则不会传递任何信息，而是后面注册命名管道之后，通过命名管道传递进来。
             HandleArgs();
-
 
             //启动命名管道，接收数据
             //这是异步管道，不要等待结果，等待会卡UI。
@@ -1117,7 +1126,7 @@ namespace N_m3u8DL_CLI_SimpleG
             bool find_exist = false;
 
             //查找列表中是否已经存在同名的任务
-            foreach (M3u8TaskItem item in this.m3u8_tasks)
+            foreach (M3u8TaskItem item in Helper.m3u8_tasks)
             {
                 //查找同名任务
                 if (item.Name == a_task.Name)
@@ -1141,7 +1150,17 @@ namespace N_m3u8DL_CLI_SimpleG
             if (!find_exist)
             {
                 //没有找到存在的任务，才添加新任务
-                this.m3u8_tasks.Add(a_task);
+                Helper.m3u8_tasks.Add(a_task);
+            }
+
+            //把列表内容，保存到文件
+            try
+            {
+                Helper.listFileIO.Save(Helper.m3u8_tasks);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"保存任务列表到文件时出错：{ex.Message}");
             }
 
             try
@@ -1339,10 +1358,11 @@ namespace N_m3u8DL_CLI_SimpleG
         private M3u8TaskItem GetNextTaskToDownload()
         {
             //遍历任务列表，查找下一个需要下载的任务
-            foreach (M3u8TaskItem item in this.m3u8_tasks)
+            foreach (M3u8TaskItem item in Helper.m3u8_tasks)
             {
                 //检查当前遍历到的任务状态
-                if (string.IsNullOrEmpty(item.Status))
+                //状态是空，说明这个任务还没有下载过
+                if (string.IsNullOrEmpty(item.Status) || item.Status == "Stopped")
                 {
                     //检查参数
                     if (string.IsNullOrEmpty(item.Parameter))
@@ -1369,8 +1389,15 @@ namespace N_m3u8DL_CLI_SimpleG
         /// <param name="e"></param>
         private async void TaskStartAsync_Click(object sender, RoutedEventArgs e)
         {
-            //重置任务列表状态
-            this.tasks_status = "";
+            //如果已经在下载，就什么也不做
+            if (this.tasks_status == "Downloading")
+            {
+                return;
+            }
+            else if (this.tasks_status == "Stopped")
+            {
+                this.tasks_status = "";
+            }
 
             //定义要下载的任务
             M3u8TaskItem item = GetNextTaskToDownload();
@@ -1384,8 +1411,12 @@ namespace N_m3u8DL_CLI_SimpleG
                 //检查任务列表状态
                 if (this.tasks_status == "Stopped")
                 {
-                    //重置状态并退出运行
                     this.tasks_status = "";
+                    break;
+                }
+                else if (item.Status == "Downloading")
+                {
+                    //退出循环什么也不做
                     break;
                 }
 
@@ -1393,6 +1424,7 @@ namespace N_m3u8DL_CLI_SimpleG
                 ClearLogBlock();
 
                 //修改任务状态
+                this.tasks_status = "Downloading";
                 item.Status = "Downloading";
                 lbTaskList.Items.Refresh();
 
@@ -1412,6 +1444,15 @@ namespace N_m3u8DL_CLI_SimpleG
                 if (item.Status == "Downloading")
                 {
                     item.Status = "Done";
+                    //把列表内容，保存到文件
+                    try
+                    {
+                        Helper.listFileIO.Save(Helper.m3u8_tasks);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"保存任务列表到文件时出错：{ex.Message}");
+                    }
                     lbTaskList.Items.Refresh();
                 }
 
@@ -1429,7 +1470,7 @@ namespace N_m3u8DL_CLI_SimpleG
             this.tasks_status = "Stopped";
 
             //遍历任务列表，查找当前任务
-            foreach (M3u8TaskItem item in this.m3u8_tasks)
+            foreach (M3u8TaskItem item in Helper.m3u8_tasks)
             {
                 //检查任务状态
                 if (item.Status == "Downloading")
@@ -1469,9 +1510,20 @@ namespace N_m3u8DL_CLI_SimpleG
                 }
             }
 
-            //刷新任务列表
+
+            //把列表内容，保存到文件
+            try 
+            {
+                Helper.listFileIO.Save(Helper.m3u8_tasks);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"保存任务列表到文件时出错：{ex.Message}");
+            }
+
             try
             {
+                //刷新任务列表
                 lbTaskList.Items.Refresh();
             }
             catch (Exception e)
@@ -1528,9 +1580,48 @@ namespace N_m3u8DL_CLI_SimpleG
 
             if (this.selected_task is null) { return; }
 
-            this.m3u8_tasks.Remove(this.selected_task);
+            Helper.m3u8_tasks.Remove(this.selected_task);
+            //把列表内容，保存到文件
+            try
+            {
+                Helper.listFileIO.Save(Helper.m3u8_tasks);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"保存任务列表到文件时出错：{ex.Message}");
+            }
 
             lbTaskList.Items.Refresh();
+        }
+
+        /// <summary>
+        /// 移除已经完成的任务，不会移除下载的文件。
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TaskRemoveDownloaded_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (M3u8TaskItem item in Helper.m3u8_tasks.ToList())
+            {
+                //检查任务状态
+                if (item.Status == "Done" || item.Status == "No Parameter")
+                {
+                    Helper.m3u8_tasks.Remove(item);
+                }
+            }
+
+            //把列表内容，保存到文件
+            try
+            {
+                Helper.listFileIO.Save(Helper.m3u8_tasks);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"保存任务列表到文件时出错：{ex.Message}");
+            }
+
+            lbTaskList.Items.Refresh();
+
         }
 
         /// <summary>
@@ -1541,7 +1632,17 @@ namespace N_m3u8DL_CLI_SimpleG
         private void TaskClear_Click(object sender, RoutedEventArgs e)
         {
 
-            this.m3u8_tasks.Clear();
+            Helper.m3u8_tasks.Clear();
+            //把列表内容，保存到文件
+            try
+            {
+                Helper.listFileIO.Save(Helper.m3u8_tasks);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"保存任务列表到文件时出错：{ex.Message}");
+            }
+
             lbTaskList.Items.Refresh();
         }
 
@@ -1605,7 +1706,7 @@ namespace N_m3u8DL_CLI_SimpleG
 
             string result = Helper.RegisterUriScheme("m3u8dl", Assembly.GetExecutingAssembly().Location);
 
-            MessageBox.Show(result);
+            MessageBox.Show("注册协议要管理员权限。操作结果："+ result);
         }
 
         /// <summary>
@@ -1620,7 +1721,7 @@ namespace N_m3u8DL_CLI_SimpleG
 
             string result = Helper.UnregisterUriScheme("m3u8dl");
 
-            MessageBox.Show(result);
+            MessageBox.Show("注销协议要管理员权限。操作结果："+result);
         }
 
         /// <summary>
@@ -1682,8 +1783,6 @@ namespace N_m3u8DL_CLI_SimpleG
 
             //修正参数转义符
             cmd = cmd.Replace("\\\"", "\"");
-            //修正工作目录
-            Environment.CurrentDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
 
             args = Helper.ParseArguments(cmd).ToArray();  //解析命令行
 
@@ -1756,6 +1855,9 @@ namespace N_m3u8DL_CLI_SimpleG
                 proxyAddress = args[proxyAddress_index];
             }
 
+            //准备添加到列表
+            M3u8TaskItem a_task = new M3u8TaskItem(name, m3u8Url, pageUrl, cmd);
+
             try 
             {
                 TextBox_Title.Text = name;
@@ -1765,6 +1867,9 @@ namespace N_m3u8DL_CLI_SimpleG
                 TextBox_Headers.Text = headers;
                 TextBox_Proxy.Text = proxyAddress;
                 TextBox_Parameter.Text = cmd;
+
+                //添加到列表
+                AddTaskToList(a_task);
             }
             catch(Exception e) 
             {
@@ -1783,16 +1888,13 @@ namespace N_m3u8DL_CLI_SimpleG
                     TextBox_Headers.Text = headers;
                     TextBox_Proxy.Text = proxyAddress;
                     TextBox_Parameter.Text = cmd;
+
+                    //添加到列表
+                    AddTaskToList(a_task);
                 }));
             }
 
 
-
-
-            M3u8TaskItem a_task = new M3u8TaskItem(name, m3u8Url, pageUrl, cmd);
-
-            //添加到列表
-            AddTaskToList(a_task);
 
 
         }
@@ -1864,9 +1966,10 @@ namespace N_m3u8DL_CLI_SimpleG
                         try
                         {
                             Helper.Args = args;
-                            
+
                         }
-                        catch (Exception e) {
+                        catch (Exception e)
+                        {
                             MessageBox.Show($"全局赋值出错：{e.Message}");
                             return;
                         }
@@ -1881,7 +1984,6 @@ namespace N_m3u8DL_CLI_SimpleG
 
 
         }
-
 
 
     }

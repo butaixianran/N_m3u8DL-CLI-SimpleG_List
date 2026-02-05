@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace N_m3u8DL_CLI_SimpleG
 {
+    [Serializable]
     public class M3u8TaskItem
     {
         public string Name { get; set; }

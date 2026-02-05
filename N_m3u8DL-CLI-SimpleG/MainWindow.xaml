@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:N_m3u8DL_CLI_SimpleG"
         xmlns:props="clr-namespace:N_m3u8DL_CLI_SimpleG.Properties"
         mc:Ignorable="d"
-        Title="N_m3u8DL-CLI-SimpleG v20220525" WindowStartupLocation="CenterScreen" Closing="Window_Closing" Loaded="Window_Loaded" Background="#FF252526">
+        Title="N_m3u8DL-CLI-SimpleG v20220525" WindowStartupLocation="CenterScreen" Closing="Window_Closing" Loaded="Window_Loaded" Background="#FF252526" Width="974">
 
     <Grid Margin="5">
         <Grid.ColumnDefinitions>
@@ -296,14 +296,16 @@
                     <ColumnDefinition></ColumnDefinition>
                     <ColumnDefinition></ColumnDefinition>
                     <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
                 </Grid.ColumnDefinitions>
 
                 <Button x:Name="btnTaskStart"  Click="TaskStartAsync_Click" Grid.Column="0" Margin="2" Foreground="#FFF1F1F1" Background="{x:Null}" BorderBrush="#FF626263">开始</Button>
                 <Button x:Name="btnTaskStop"  Click="TaskStop_Click" Grid.Column="1" Margin="2" Foreground="#FFF1F1F1" Background="{x:Null}" BorderBrush="#FF626263">停止</Button>
                 <Button x:Name="btnTaskReset"  Click="TaskReset_Click" Grid.Column="2" Margin="2" Foreground="#FFF1F1F1" Background="{x:Null}" BorderBrush="#FF626263">重置</Button>
                 <Button x:Name="btnTaskRemove"  Click="TaskRemove_Click" Grid.Column="3" Margin="2" Foreground="#FFF1F1F1" Background="{x:Null}" BorderBrush="#FF626263">移除</Button>
-                <Button x:Name="btnTaskClear"  Click="TaskClear_Click" Grid.Column="4" Margin="2" Foreground="#FFF1F1F1" Background="{x:Null}" BorderBrush="#FF626263">清空</Button>
-                <Button x:Name="btnTaskOpenUrl"  Click="TaskOpenUrl_Click" Grid.Column="5" Margin="2" Foreground="#FFF1F1F1" Background="{x:Null}" BorderBrush="#FF626263">打开网页</Button>
+                <Button x:Name="btnTaskRemoveDownloaded"  Click="TaskRemoveDownloaded_Click" Grid.Column="4" Margin="2" Foreground="#FFF1F1F1" Background="{x:Null}" BorderBrush="#FF626263">移除已完成</Button>
+                <Button x:Name="btnTaskClear"  Click="TaskClear_Click" Grid.Column="5" Margin="2" Foreground="#FFF1F1F1" Background="{x:Null}" BorderBrush="#FF626263">清空</Button>
+                <Button x:Name="btnTaskOpenUrl"  Click="TaskOpenUrl_Click" Grid.Column="6" Margin="2" Foreground="#FFF1F1F1" Background="{x:Null}" BorderBrush="#FF626263">打开网页</Button>
 
             </Grid>
             <Grid Grid.Row="1" Margin="2">

@@ -4,6 +4,7 @@
 
 # 新功能
 * 新增任务列表功能
+* 自动保存和读取列表到文件，软件关掉，下次打开列表还在
 * 列表区域下方会显示下载进度的Log。
 * 原版的"Go"按钮，变为"Add"，改为把任务添加到列表，而不是直接下载。
 * GUI端支持 m3u8dl 协议。可以配合chrome浏览器扩展 [猫抓](https://chromewebstore.google.com/detail/%E7%8C%AB%E6%8A%93/jfedfbgedapdagkghmgibemcoggfppbb?hl=zh-CN) 使用。在[猫抓](https://chromewebstore.google.com/detail/%E7%8C%AB%E6%8A%93/jfedfbgedapdagkghmgibemcoggfppbb?hl=zh-CN)中，点击下载，可以自动打开本GUI工具，把下载任务添加到列表中。
@@ -140,3 +141,7 @@ m3u8地址经常一两个小时就会失效，所以就懒得做保存列表功�
 相关说明：https://nilaoda.github.io/N_m3u8DL-CLI/SimpleGUI.html
 
 ![image](https://user-images.githubusercontent.com/20772925/153235235-712b338e-4e2a-4a77-8b3b-119bceb45f24.png)
+
+
+# 更新Log
+* 2026.02.05 添加保存下载列表功能

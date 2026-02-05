@@ -20,6 +20,7 @@ namespace N_m3u8DL_CLI_SimpleG
     {
 
         public static string pipeName = "N_m3u8DL_CLI_SimpleG_List_Pipe";
+        public static string saveListFileName = "saved_list";
         public static NamedPipeServerStream serverStream;
         public static NamedPipeClientStream clientStream;
         public static CancellationTokenSource cts = new CancellationTokenSource();
@@ -27,6 +28,10 @@ namespace N_m3u8DL_CLI_SimpleG
         //m3u8dl协议传入的参数。由app启动的时候，传到这里暂存
         //再在main window的处理方法中去处理。
         public static string[] Args;
+
+        public static List<M3u8TaskItem> m3u8_tasks = new List<M3u8TaskItem>();
+        //保存任务列表的IO对象
+        public static IO listFileIO = new IO(saveListFileName);
 
 
 
