@@ -1205,8 +1205,17 @@ namespace N_m3u8DL_CLI_SimpleG
         {
             line = line.Trim() + Environment.NewLine;
 
+            //TextBlock是性能杀手，每次都要重新绘制整个输入框，内容多了性能下降难以相像。
+            //限制行数，避免无限增长导致卡顿
+            int lineCount = LogBlock.Text.Count(c => c == '\n');
+            if (lineCount > 100)
+            {
+                ClearLogBlock();
+            }
+
             try
             {
+                
                 LogBlock.Text = line + LogBlock.Text;
             }
             catch (Exception e)
