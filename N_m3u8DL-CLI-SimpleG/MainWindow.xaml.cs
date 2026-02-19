@@ -40,7 +40,7 @@ using MessageBox = System.Windows.MessageBox;
 using Path = System.IO.Path;
 using TextBox = System.Windows.Controls.TextBox;
 
-namespace N_m3u8DL_CLI_SimpleG
+namespace N_m3u8DL_CLI_SimpleG_List
 {
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
@@ -1311,7 +1311,7 @@ namespace N_m3u8DL_CLI_SimpleG
                         WriteLogBlockLine(line);
 
                         //检查内容是不是地址无效
-                        if (line.Contains("地址无效")) 
+                        if (line.Contains("地址无效") || line.Contains("磁盘空间不足") || line.Contains("下载失败, 程序退出") || line.Contains("强制退出") || line.Contains("无效的m3u8") || line.Contains("地址无效") || line.Contains("录制已到达限定长度")) 
                         {
                             //要终止写入，并停止这个任务的下载
                             StopTask("Failed");
@@ -1643,6 +1643,12 @@ namespace N_m3u8DL_CLI_SimpleG
         /// <param name="e"></param>
         private void TaskClear_Click(object sender, RoutedEventArgs e)
         {
+            //跳出提示框，让用户确认是否真的要清空全部任务
+            MessageBoxResult result = MessageBox.Show("真的要清空全部任务吗？", "确认清空", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (result != MessageBoxResult.Yes)
+            {
+                return;
+            }
 
             Helper.m3u8_tasks.Clear();
             //把列表内容，保存到文件
@@ -1718,7 +1724,10 @@ namespace N_m3u8DL_CLI_SimpleG
 
             string result = Helper.RegisterUriScheme("m3u8dl", Assembly.GetExecutingAssembly().Location);
 
-            MessageBox.Show("注册协议要管理员权限。操作结果："+ result);
+            if (Helper.isAdmin) { MessageBox.Show("操作结果：" + result); }
+            else { MessageBox.Show("注册协议要管理员权限。系统提示：" + result); }
+
+                
         }
 
         /// <summary>
@@ -1733,7 +1742,8 @@ namespace N_m3u8DL_CLI_SimpleG
 
             string result = Helper.UnregisterUriScheme("m3u8dl");
 
-            MessageBox.Show("注销协议要管理员权限。操作结果："+result);
+            if (Helper.isAdmin) { MessageBox.Show("操作结果：" + result); }
+            else { MessageBox.Show("注销协议要管理员权限。系统提示：" + result); }
         }
 
         /// <summary>

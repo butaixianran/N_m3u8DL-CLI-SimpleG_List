@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace N_m3u8DL_CLI_SimpleG.Properties {
+namespace N_m3u8DL_CLI_SimpleG_List.Properties {
     using System;
     
     

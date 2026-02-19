@@ -14,7 +14,8 @@ using System.Security.Principal;
 using System.Windows;
 using System.Threading;
 
-namespace N_m3u8DL_CLI_SimpleG
+
+namespace N_m3u8DL_CLI_SimpleG_List
 {
     public static class Helper
     {
@@ -24,6 +25,7 @@ namespace N_m3u8DL_CLI_SimpleG
         public static NamedPipeServerStream serverStream;
         public static NamedPipeClientStream clientStream;
         public static CancellationTokenSource cts = new CancellationTokenSource();
+        public static bool isAdmin = IsRunAsAdmin();
 
         //m3u8dl协议传入的参数。由app启动的时候，传到这里暂存
         //再在main window的处理方法中去处理。
@@ -210,6 +212,19 @@ namespace N_m3u8DL_CLI_SimpleG
             await clientStream.FlushAsync();
         }
 
+        /// <summary>
+        /// 判断当前程序是否以管理员权限运行
+        /// </summary>
+        /// <returns>true = 管理员权限，false = 普通权限</returns>
+        public static bool IsRunAsAdmin()
+        {
+            using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
+            {
+                WindowsPrincipal principal = new WindowsPrincipal(identity);
+                return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            }
+
+        }
 
     }
 }

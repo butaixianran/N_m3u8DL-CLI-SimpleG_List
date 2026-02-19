@@ -1,10 +1,10 @@
-﻿<Window x:Class="N_m3u8DL_CLI_SimpleG.MainWindow"
+﻿<Window x:Class="N_m3u8DL_CLI_SimpleG_List.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:N_m3u8DL_CLI_SimpleG"
-        xmlns:props="clr-namespace:N_m3u8DL_CLI_SimpleG.Properties"
+        xmlns:local="clr-namespace:N_m3u8DL_CLI_SimpleG_List"
+        xmlns:props="clr-namespace:N_m3u8DL_CLI_SimpleG_List.Properties"
         mc:Ignorable="d"
         Title="N_m3u8DL-CLI-SimpleG v20220525" WindowStartupLocation="CenterScreen" Closing="Window_Closing" Loaded="Window_Loaded" Background="#FF252526" Width="974">
 

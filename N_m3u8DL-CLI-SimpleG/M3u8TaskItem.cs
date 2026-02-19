@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace N_m3u8DL_CLI_SimpleG
+namespace N_m3u8DL_CLI_SimpleG_List
 {
-    [Serializable]
     public class M3u8TaskItem
     {
         public string Name { get; set; }

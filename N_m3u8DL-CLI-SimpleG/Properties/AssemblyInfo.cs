@@ -7,11 +7,11 @@ using System.Windows;
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("N_m3u8DL-CLI-SimpleG")]
-[assembly: AssemblyDescription("N_m3u8DL-CLI的简易GUI程序")]
+[assembly: AssemblyTitle("N_m3u8DL-CLI-SimpleG_List")]
+[assembly: AssemblyDescription("N_m3u8DL-CLI的简易GUI程序，带列表功能")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("nilaoda")]
-[assembly: AssemblyProduct("N_m3u8DL-CLI-SimpleG")]
+[assembly: AssemblyProduct("N_m3u8DL-CLI-SimpleG_List")]
 [assembly: AssemblyCopyright("Copyright ©  2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

@@ -5,8 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using Newtonsoft.Json;
 
-namespace N_m3u8DL_CLI_SimpleG
+namespace N_m3u8DL_CLI_SimpleG_List
 {
     public class IO
     {
@@ -15,7 +16,7 @@ namespace N_m3u8DL_CLI_SimpleG
 
         public IO(string fileName)
         {
-            this.FileName = fileName + ".data";
+            this.FileName = fileName + ".json";
         }
 
 
@@ -25,15 +26,16 @@ namespace N_m3u8DL_CLI_SimpleG
             var path = Path.Combine(Directory.GetCurrentDirectory(), FileName);
             try
             {
-                using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
-                {
-                    var bf = new BinaryFormatter();
-                    bf.Serialize(fs, items);
-                }
+                // 将对象转换为格式化的 JSON 字符串
+                string json = JsonConvert.SerializeObject(items, Formatting.Indented);
+
+                // 写入文件（UTF-8 编码）
+                File.WriteAllText(path, json, Encoding.UTF8);
+
             }
-            catch
+            catch (Exception ex)
             {
-                // 忽略序列化错误以保持与 JSON 方法一致的行为
+                System.Windows.MessageBox.Show("保存失败：" + ex.Message);
             }
         }
 
@@ -46,15 +48,26 @@ namespace N_m3u8DL_CLI_SimpleG
 
             try
             {
-                using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+                // 读取全部文本
+                string json = File.ReadAllText(path, Encoding.UTF8);
+
+                // 反序列化
+                var obj = JsonConvert.DeserializeObject<List<M3u8TaskItem>>(json);
+
+                if (obj == null)
                 {
-                    var bf = new BinaryFormatter();
-                    var obj = bf.Deserialize(fs) as List<M3u8TaskItem>;
-                    return obj ?? new List<M3u8TaskItem>();
+                    System.Windows.MessageBox.Show("读取失败");
+                    // 如果反序列化结果为 null，返回空列表
+                    return new List<M3u8TaskItem>();
                 }
+
+                return obj;
             }
-            catch
+            catch(Exception ex) 
             {
+                //弹窗显示出错消息
+                System.Windows.MessageBox.Show("加载任务列表失败，可能是程序集版本变化。\n错误信息：" + ex.Message, "错误", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+
                 // 如果反序列化失败，则返回空列表
                 return new List<M3u8TaskItem>();
             }
