@@ -1469,6 +1469,9 @@ namespace N_m3u8DL_CLI_SimpleG
                 item = GetNextTaskToDownload();
             }
 
+            //设置任务状态
+            this.tasks_status = "";
+
 
         }
 

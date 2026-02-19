@@ -57,12 +57,17 @@
 
 * 安装猫抓浏览器扩展
 [https://chromewebstore.google.com/detail/%E7%8C%AB%E6%8A%93/jfedfbgedapdagkghmgibemcoggfppbb?hl=zh-CN](https://chromewebstore.google.com/detail/%E7%8C%AB%E6%8A%93/jfedfbgedapdagkghmgibemcoggfppbb?hl=zh-CN)  
-* 在猫抓的设置中，开启`调用N_m3u8DL-CLI的m3u8dl://协议下载m3u8 和 mpd`。填写好协议要用的下载参数。
+* 在猫抓的设置中，`m3u8dl 自定义协议`一栏。右侧选择`N_m3u8DL_CLI`填写好协议要用的下载参数。  
+
+![](img/猫抓设置.jpg)
 
 下面的参数供参考：
 ```
 "${url}" --saveName "${title}" --workDir "你的下载目录" --enableDelAfterDone --headers "Referer:${initiator}" --pageUrl "${webUrl}" --proxyAddress "socks5://127.0.0.1:你的代理端口"
-```
+```  
+
+注意，`m3u8dl 自定义协议`和`调用程序`是两个不同的设置区域，都有填写参数的部分。别填写错区域了。  
+
 
 好了，配置完毕。
 
