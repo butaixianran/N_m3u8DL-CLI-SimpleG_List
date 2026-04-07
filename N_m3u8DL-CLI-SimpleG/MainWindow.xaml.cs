@@ -1581,6 +1581,21 @@ namespace N_m3u8DL_CLI_SimpleG_List
             lbTaskList.Items.Refresh();
         }
 
+        /// <summary>
+        /// 把当前选择的任务移到列表顶部，方便下一次下载。因为下载是从上往下找第一个状态是空的任务来下载的。
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TaskToTop_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.selected_task is null) { return; }
+
+            //把当前选择的任务，从列表中移除，再添加到列表顶部
+            Helper.m3u8_tasks.Remove(this.selected_task);
+            Helper.m3u8_tasks.Insert(0, this.selected_task);
+
+            lbTaskList.Items.Refresh();
+        }
 
         /// <summary>
         /// 移除当前选择的任务。
